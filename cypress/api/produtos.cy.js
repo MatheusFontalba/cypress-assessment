@@ -53,7 +53,7 @@ describe('API | Gestão de produtos', () => {
   });
 
   describe('Cadastro | POST /produtos', () => {
-    it('deve permitir que um administrador cadastre um produto válido', () => {
+    it('Administrador cadastrar produto e consultar os dados', () => {
       const produto = criarDadosProduto();
 
       cadastrarProduto(produto, token).then((response) => {
@@ -72,7 +72,7 @@ describe('API | Gestão de produtos', () => {
       });
     });
 
-    it('deve recusar cadastro sem token de autenticação', () => {
+    it('Recusar cadastro sem token', () => {
       const produto = criarDadosProduto();
       cadastrarProduto(produto).then((response) => {
         expect(response.status).to.equal(401);
@@ -86,7 +86,7 @@ describe('API | Gestão de produtos', () => {
       });
     });
 
-    it('deve recusar cadastro por usuário comum autenticado', () => {
+    it('Recusar cadastro por usuário comum autenticado', () => {
       const usuario = criarDadosUsuario({ administrador: 'false' });
       const produto = criarDadosProduto();
       cy.request('POST', '/usuarios', usuario).then((response) => {
@@ -111,7 +111,7 @@ describe('API | Gestão de produtos', () => {
       });
     });
 
-    it('deve recusar nome duplicado sem alterar o produto original', () => {
+    it('Recusar nome de produto duplicado', () => {
       const original = criarDadosProduto();
       const duplicado = criarDadosProduto({ nome: original.nome, preco: original.preco + 1 });
       cadastrarProduto(original, token).then((response) => {

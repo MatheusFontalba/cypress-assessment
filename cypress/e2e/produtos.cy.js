@@ -46,7 +46,7 @@ describe('Frontend | Cadastro administrativo de produtos', () => {
     return limparRecursos(recursos);
   });
 
-  it('deve cadastrar produto sem imagem e exibir seus dados na listagem', () => {
+  it('Fazer login, cadastrar produto sem imagem e conferir a listagem', () => {
     const produto = criarDadosProduto();
     produtosAdminPage.preencher(produto);
     produtosAdminPage.cadastrar();
@@ -69,7 +69,7 @@ describe('Frontend | Cadastro administrativo de produtos', () => {
     });
   });
 
-  it('deve exibir erro para nome de produto duplicado', () => {
+  it('Exibir erro para nome de produto duplicado', () => {
     const original = criarDadosProduto();
     let originalId;
     // Lê o token só quando chegar a esta etapa, depois de concluir o login.
@@ -92,7 +92,7 @@ describe('Frontend | Cadastro administrativo de produtos', () => {
     });
   });
 
-  it('deve exibir erro quando o nome não for preenchido', () => {
+  it('Exibir erro quando o nome do produto não for preenchido', () => {
     produtosAdminPage.preencher(criarDadosProduto({ nome: undefined }));
     produtosAdminPage.cadastrar();
     cy.wait('@cadastroProduto').then(({ response }) => {

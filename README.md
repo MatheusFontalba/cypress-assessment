@@ -40,12 +40,79 @@ Se o PowerShell bloquear `npm.ps1`, use `npm.cmd` no lugar de `npm`.
 | `npm run cy:open` | Abrir a interface do Cypress para os testes E2E |
 | `npm run cy:open:api` | Abrir a interface do Cypress para os testes de API |
 
-Para rodar um arquivo específico ou acompanhar o navegador na tela:
+### Como reproduzir os testes da entrega
 
-```sh
-npm run test:api -- --spec cypress/api/usuarios.cy.js
-npm run test:e2e -- --headed --spec cypress/e2e/lista-compras.cy.js
+Abra o terminal na pasta `ServerRest Cypress Project`, onde está o `package.json`.
+Antes da primeira execução, rode `npm ci`. Os exemplos abaixo usam `npm.cmd` para
+funcionar no PowerShell sem depender da permissão para executar `npm.ps1`.
+Em Linux ou macOS, use `npm` no lugar de `npm.cmd`.
+
+#### 1. As três funcionalidades de API
+
+```powershell
+npm.cmd run test:api
 ```
+
+Executa usuários (`usuarios.cy.js`), produtos (`produtos.cy.js`) e carrinhos
+(`carrinhos.cy.js`), com **20 testes no total**. O resultado aparece no terminal;
+o Chrome roda sem abrir uma janela visível.
+
+Para executar apenas uma delas, escolha o comando correspondente:
+
+```powershell
+npm.cmd run test:api -- --spec cypress/api/usuarios.cy.js
+npm.cmd run test:api -- --spec cypress/api/produtos.cy.js
+npm.cmd run test:api -- --spec cypress/api/carrinhos.cy.js
+```
+
+#### 2. As três funcionalidades pela interface gráfica
+
+```powershell
+npm.cmd run test:e2e -- --headed
+```
+
+Abre o Chrome e executa cadastro administrativo de usuários (`cadastro.cy.js`),
+cadastro de produtos (`produtos.cy.js`) e lista de compras (`lista-compras.cy.js`).
+São **7 testes no total**. O navegador é controlado pelo Cypress; basta acompanhar
+a execução e conferir o resultado no terminal.
+
+Para acompanhar uma funcionalidade por vez:
+
+```powershell
+npm.cmd run test:e2e -- --headed --spec cypress/e2e/cadastro.cy.js
+npm.cmd run test:e2e -- --headed --spec cypress/e2e/produtos.cy.js
+npm.cmd run test:e2e -- --headed --spec cypress/e2e/lista-compras.cy.js
+```
+
+#### 3. A jornada completa: administrador e comprador
+
+```powershell
+npm.cmd run test:e2e -- --headed --spec cypress/e2e/lista-compras.cy.js
+```
+
+Executa **um teste positivo**: prepara o administrador via API, faz login pela tela,
+cadastra comprador e produto, confere as listagens, troca para o comprador e adiciona
+o produto à lista. Depois altera a quantidade, confere os valores, limpa a lista e
+verifica que ela continua vazia após recarregar a página.
+
+Essa jornada já faz parte da rotina E2E acima; este comando permite rodá-la sozinha.
+Ela termina na lista de compras, sem concluir uma compra no carrinho.
+
+Os testes geram os próprios dados e tentam removê-los ao final. Não é necessário
+cadastrar contas ou produtos manualmente. Espere o comando terminar para que a
+limpeza também seja executada.
+
+Para executar **toda a entrega**, E2E e API, use:
+
+```powershell
+npm.cmd test
+```
+
+São **27 testes**. A etapa de API só começa se a etapa E2E passar. Ao final, confira
+os resumos de cada suíte: `Passing` indica os aprovados e `Failing` aponta falhas.
+Para considerar a execução completa aprovada, os 27 testes devem passar e o comando
+deve terminar com código 0. Se houver falha, leia o erro no terminal; screenshots de
+falhas E2E ficam em `cypress/screenshots`.
 
 Na interface do Cypress, escolha o arquivo de teste para acompanhar cada comando.
 Pelo terminal, `--headed` deixa o navegador visível; sem essa opção, ele roda em
@@ -53,14 +120,65 @@ segundo plano, no modo headless.
 
 ## Cobertura
 
-| Spec | Casos | Validações principais |
-| --- | ---: | --- |
-| `api/usuarios.cy.js` | 13 | Cadastro de ambos os perfis, duplicidade, quatro campos obrigatórios, e-mail inválido, tipo do perfil, senha vazia; edição válida/duplicada e exclusão |
-| `api/produtos.cy.js` | 4 | Cadastro por administrador, token ausente, usuário sem permissão, nome duplicado |
-| `api/carrinhos.cy.js` | 3 | Criação/cancelamento e estoque, quantidade acima do estoque, bloqueio da exclusão de usuário com carrinho |
-| `e2e/cadastro.cy.js` | 3 | Cadastro administrativo de usuário comum, e-mail duplicado e nome não preenchido |
-| `e2e/produtos.cy.js` | 3 | Login e cadastro sem imagem, nome duplicado e nome não preenchido |
-| `e2e/lista-compras.cy.js` | 1 | Jornada completa entre administrador e comprador |
+Os casos estão separados pelo resultado esperado: sucesso da operação ou rejeição
+de uma ação inválida. Um teste negativo passa quando a aplicação rejeita a ação corretamente.
+
+Os títulos no Cypress seguem os nomes das tabelas abaixo. Nos casos agrupados,
+o título recebe o perfil ou o campo ao final para identificar cada execução.
+
+### API — 20 testes
+
+Arquivos em `cypress/api/`.
+
+**Positivos — 6 testes**
+
+| Arquivo | Cenário | Quantidade |
+| :--- | :--- | ---: |
+| `usuarios.cy.js` | Cadastrar administrador e usuário comum | 2 |
+| `usuarios.cy.js` | Editar os dados e o perfil do usuário | 1 |
+| `usuarios.cy.js` | Excluir usuário sem carrinho e confirmar sua ausência | 1 |
+| `produtos.cy.js` | Administrador cadastrar produto e consultar os dados | 1 |
+| `carrinhos.cy.js` | Criar e cancelar carrinho, restaurando o estoque | 1 |
+
+**Negativos — 14 testes**
+
+| Arquivo | Cenário | Quantidade |
+| :--- | :--- | ---: |
+| `usuarios.cy.js` | Recusar cadastro com e-mail duplicado | 1 |
+| `usuarios.cy.js` | Recusar ausência de nome, e-mail, senha ou perfil — um teste por campo | 4 |
+| `usuarios.cy.js` | Recusar e-mail malformado | 1 |
+| `usuarios.cy.js` | Recusar perfil booleano em vez de string | 1 |
+| `usuarios.cy.js` | Recusar senha vazia | 1 |
+| `usuarios.cy.js` | Recusar edição com e-mail de outro usuário | 1 |
+| `produtos.cy.js` | Recusar cadastro sem token | 1 |
+| `produtos.cy.js` | Recusar cadastro por usuário comum autenticado | 1 |
+| `produtos.cy.js` | Recusar nome de produto duplicado | 1 |
+| `carrinhos.cy.js` | Recusar quantidade acima do estoque disponível | 1 |
+| `carrinhos.cy.js` | Impedir exclusão de usuário com carrinho | 1 |
+
+### Interface (E2E) — 7 testes
+
+Arquivos em `cypress/e2e/`.
+
+**Positivos — 3 testes**
+
+| Arquivo | Cenário | Quantidade |
+| :--- | :--- | ---: |
+| `cadastro.cy.js` | Administrador cadastrar usuário comum e conferir a listagem | 1 |
+| `produtos.cy.js` | Fazer login, cadastrar produto sem imagem e conferir a listagem | 1 |
+| `lista-compras.cy.js` | Completar a jornada do administrador até a lista vazia do comprador | 1 |
+
+**Negativos — 4 testes**
+
+| Arquivo | Cenário | Quantidade |
+| :--- | :--- | ---: |
+| `cadastro.cy.js` | Exibir erro para e-mail duplicado | 1 |
+| `cadastro.cy.js` | Exibir erro quando o nome do usuário não for preenchido | 1 |
+| `produtos.cy.js` | Exibir erro para nome de produto duplicado | 1 |
+| `produtos.cy.js` | Exibir erro quando o nome do produto não for preenchido | 1 |
+
+**Total: 27 testes — 9 positivos e 18 negativos.** A lista de compras tem apenas
+o positivo descrito abaixo.
 
 A jornada completa prepara apenas o administrador via API. Pela interface, ele faz
 login, cadastra comprador e produto e confere suas listagens. Após logout, o comprador

@@ -44,7 +44,7 @@ describe('Frontend | Cadastro administrativo de usuários', () => {
     return limparRecursos([...idsCriados].map((id) => ({ url: `${api}/usuarios/${id}` })));
   });
 
-  it('deve cadastrar um usuário comum e exibi-lo na listagem', () => {
+  it('Administrador cadastrar usuário comum e conferir a listagem', () => {
     const usuario = criarDadosUsuario({ administrador: 'false' });
 
     cy.location('pathname').should('eq', '/admin/cadastrarusuarios');
@@ -67,7 +67,7 @@ describe('Frontend | Cadastro administrativo de usuários', () => {
     });
   });
 
-  it('deve exibir erro ao cadastrar e-mail já utilizado', () => {
+  it('Exibir erro para e-mail duplicado', () => {
     const original = criarDadosUsuario({ administrador: 'false' });
     let originalId;
     cy.request('POST', `${api}/usuarios`, original).then((response) => {
@@ -94,7 +94,7 @@ describe('Frontend | Cadastro administrativo de usuários', () => {
     });
   });
 
-  it('deve exibir erro ao enviar o formulário sem preencher o nome', () => {
+  it('Exibir erro quando o nome do usuário não for preenchido', () => {
     const usuario = criarDadosUsuario({ nome: undefined, administrador: 'false' });
     usuariosAdminPage.preencher(usuario);
     usuariosAdminPage.cadastrar();

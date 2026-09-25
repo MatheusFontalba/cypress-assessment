@@ -23,7 +23,7 @@ describe('API | Gestão de usuários', () => {
 
   describe('Cadastro | POST /usuarios', () => {
     ['true', 'false'].forEach((administrador) => {
-      it(`deve cadastrar usuário com administrador = "${administrador}"`, () => {
+      it(`Cadastrar administrador e usuário comum — ${administrador === 'true' ? 'administrador' : 'usuário comum'}`, () => {
         const usuario = criarDadosUsuario({ administrador });
         let usuarioId;
         cadastrar(usuario).then((response) => {
@@ -41,7 +41,7 @@ describe('API | Gestão de usuários', () => {
       });
     });
 
-    it('deve recusar e-mail duplicado sem alterar o usuário original', () => {
+    it('Recusar cadastro com e-mail duplicado', () => {
       const original = criarDadosUsuario();
       let usuarioId;
       cadastrar(original).then((response) => {
@@ -62,15 +62,16 @@ describe('API | Gestão de usuários', () => {
     // Muda um campo por vez para ficar claro qual regra falhou.
     const invalidos = [
       ...['nome', 'email', 'password', 'administrador'].map((campo) => ({
-        campo, tipo: 'ausente', valor: undefined,
+        campo, valor: undefined,
+        cenario: `Recusar ausência de nome, e-mail, senha ou perfil — ${campo}`,
       })),
-      { campo: 'email', tipo: 'malformado', valor: 'sem-arroba' },
-      { campo: 'administrador', tipo: 'booleano em vez de string', valor: true },
-      { campo: 'password', tipo: 'vazio', valor: '' },
+      { campo: 'email', cenario: 'Recusar e-mail malformado', valor: 'sem-arroba' },
+      { campo: 'administrador', cenario: 'Recusar perfil booleano em vez de string', valor: true },
+      { campo: 'password', cenario: 'Recusar senha vazia', valor: '' },
     ];
 
-    invalidos.forEach(({ campo, tipo, valor }) => {
-      it(`deve recusar ${campo} ${tipo}`, () => {
+    invalidos.forEach(({ campo, cenario, valor }) => {
+      it(cenario, () => {
         const usuario = criarDadosUsuario({ [campo]: valor });
         if (valor === undefined) delete usuario[campo];
         cadastrar(usuario).then((response) => {
@@ -84,7 +85,7 @@ describe('API | Gestão de usuários', () => {
   });
 
   describe('Edição | PUT /usuarios/{id}', () => {
-    it('deve editar os dados e o perfil de um usuário existente', () => {
+    it('Editar os dados e o perfil do usuário', () => {
       const atualizado = criarDadosUsuario({ administrador: 'false' });
       let usuarioId;
 
@@ -102,7 +103,7 @@ describe('API | Gestão de usuários', () => {
       });
     });
 
-    it('deve recusar edição com e-mail de outro usuário sem alterar os registros', () => {
+    it('Recusar edição com e-mail de outro usuário', () => {
       const original = criarDadosUsuario();
       const outro = criarDadosUsuario();
       let usuarioId;
@@ -135,7 +136,7 @@ describe('API | Gestão de usuários', () => {
   });
 
   describe('Exclusão | DELETE /usuarios/{id}', () => {
-    it('deve excluir um usuário sem carrinho e torná-lo indisponível para consulta', () => {
+    it('Excluir usuário sem carrinho e confirmar sua ausência', () => {
       let usuarioId;
 
       cadastrar(criarDadosUsuario()).then((response) => {

@@ -70,7 +70,7 @@ describe('API | Carrinhos e estoque', () => {
     return limparRecursos(recursos);
   });
 
-  it('deve criar e cancelar o carrinho restaurando o estoque', () => {
+  it('Criar e cancelar carrinho, restaurando o estoque', () => {
     let carrinhoId;
     criarCarrinho(2).then((response) => {
       carrinhoId = response.body._id;
@@ -104,7 +104,7 @@ describe('API | Carrinhos e estoque', () => {
     });
   });
 
-  it('deve recusar quantidade acima do estoque sem criar carrinho ou reduzir estoque', () => {
+  it('Recusar quantidade acima do estoque disponível', () => {
     criarCarrinho(6).then((response) => {
       expect(response.status).to.equal(400);
       expect(response.body.message).to.equal('Produto não possui quantidade suficiente');
@@ -120,7 +120,7 @@ describe('API | Carrinhos e estoque', () => {
     });
   });
 
-  it('deve impedir a exclusão de usuário com carrinho cadastrado', () => {
+  it('Impedir exclusão de usuário com carrinho', () => {
     let carrinhoId;
     criarCarrinho(1).then((response) => {
       expect(response.status, 'preparação do carrinho').to.equal(201);

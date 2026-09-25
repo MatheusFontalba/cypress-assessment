@@ -16,7 +16,7 @@ describe('Frontend | Lista de compras', () => {
     limparMassaCompras(massa);
   });
 
-  it('deve cadastrar comprador e produto como administrador e gerenciar a lista como comprador', () => {
+  it('Completar a jornada do administrador até a lista vazia do comprador', () => {
     const api = Cypress.expose('apiUrl');
     cy.intercept('POST', `${api}/login`, (req) => {
       req.on('response', (res) => {
