@@ -1,0 +1,11 @@
+node_modules/
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+coverage/
+*.log
+*.zip
+.env
+.env.*
+!.env.example
+cypress.env.json

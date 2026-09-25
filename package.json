@@ -1,0 +1,25 @@
+{
+  "name": "serverrest-cypress-project",
+  "version": "1.0.0",
+  "description": "Testes de API e jornadas E2E do ServeRest com Cypress e JavaScript",
+  "private": true,
+  "engines": {
+    "node": "^24.0.0",
+    "npm": ">=10"
+  },
+  "scripts": {
+    "test": "npm run test:e2e && npm run test:api",
+    "test:e2e": "cypress run --e2e --config-file cypress.config.js --browser chrome",
+    "test:api": "cypress run --e2e --config-file cypress.api.config.js --browser chrome",
+    "cy:open": "cypress open --e2e --config-file cypress.config.js --browser chrome",
+    "cy:open:api": "cypress open --e2e --config-file cypress.api.config.js --browser chrome"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@faker-js/faker": "^10.6.0",
+    "cypress": "^16.1.0"
+  }
+}
