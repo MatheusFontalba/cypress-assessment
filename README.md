@@ -1,6 +1,6 @@
 # ServeRest — automação com Cypress
 
-Este projeto testa o ServeRest com JavaScript e Cypress. A cobertura inclui gestão
+Suíte de testes do ServeRest feita com JavaScript e Cypress. Os testes cobrem gestão
 de usuários, cadastro de produtos, regras de carrinho e a jornada do administrador
 até a lista de compras do comprador.
 
@@ -9,9 +9,9 @@ Cada teste prepara os dados de que precisa e pode ser executado sozinho.
 A jornada entre administrador e comprador fica em um único teste, porque suas
 etapas fazem parte do mesmo fluxo.
 
-Para esta entrega, as três funcionalidades foram tratadas como grupos de testes,
-com casos positivos e negativos quando aplicável. Portanto, há mais de três casos
-por camada. A lista de compras cobre apenas o caminho feliz completo.
+O escopo está organizado em três funcionalidades de API e três de interface,
+com testes separados para os casos de sucesso e de erro. Isso resulta em mais de
+três casos por camada. A lista de compras cobre o caminho feliz completo.
 
 ## Requisitos e instalação
 
@@ -118,10 +118,43 @@ Na interface do Cypress, escolha o arquivo de teste para acompanhar cada comando
 Pelo terminal, `--headed` deixa o navegador visível; sem essa opção, ele roda em
 segundo plano, no modo headless.
 
+## Relatórios HTML e XML
+
+Os comandos de execução pelo terminal já geram os dois formatos, inclusive com
+`--headed` ou `--spec`. Não é necessário executar os testes novamente para cada formato:
+
+```powershell
+npm.cmd run test:api
+npm.cmd run test:e2e
+```
+
+Para executar as duas suítes, use `npm.cmd test`. A API só começa se
+o E2E passar. Os relatórios mostram apenas os testes que foram executados.
+
+| Formato | Onde encontrar | Como usar |
+| :--- | :--- | :--- |
+| HTML (Mochawesome) | `reports/<suite>/<data-hora>/html/` | Abra o arquivo `.html` no navegador para ver testes, tempos e falhas. |
+| XML (JUnit) | `reports/<suite>/<data-hora>/xml/` | Importe os arquivos em uma ferramenta de CI compatível com JUnit. |
+
+`<suite>` é `api` ou `e2e`. Cada execução ganha uma pasta com data e hora UTC e
+gera um HTML e um XML por spec. Assim, uma execução não apaga a anterior e os
+resultados de API e E2E ficam separados. O caminho do HTML também aparece no terminal.
+
+O HTML inclui seus próprios recursos e pode ser aberto offline. Screenshots
+continuam em `cypress/screenshots`; não são incorporados ao relatório.
+Os relatórios são gerados por `cypress run`, não pela interface `cy:open`.
+Uma interrupção antes de a spec terminar pode impedir a geração do seu relatório.
+
+A configuração compartilhada fica em `reporters.config.js`. O
+`cypress-multi-reporters` mantém a saída do terminal e aciona o Mochawesome e o
+reporter JUnit na mesma execução. Referência: [reporters do Cypress](https://docs.cypress.io/app/tooling/reporters).
+A pasta `reports/` está no `.gitignore`; você pode removê-la quando não precisar
+mais do histórico. Não há envio automático dos relatórios para serviços externos.
+
 ## Cobertura
 
-Os casos estão separados pelo resultado esperado: sucesso da operação ou rejeição
-de uma ação inválida. Um teste negativo passa quando a aplicação rejeita a ação corretamente.
+As tabelas separam os caminhos de sucesso das tentativas que a aplicação deve
+recusar. Nos testes negativos, o resultado esperado é a rejeição da operação.
 
 Os títulos no Cypress seguem os nomes das tabelas abaixo. Nos casos agrupados,
 o título recebe o perfil ou o campo ao final para identificar cada execução.
@@ -218,8 +251,9 @@ Os intercepts acompanham as chamadas reais, sem substituir respostas. Os testes
 aguardam as requisições e os resultados esperados na tela, sem pausas de duração fixa.
 Não há tratamento global para ignorar erros da aplicação.
 
-O projeto não precisa de comandos customizados ou arquivos de dados estáticos neste
-momento. Por isso, `supportFile` e `fixturesFolder` estão desabilitados.
+Os dados são gerados nos helpers e as ações de tela ficam nos Page Objects.
+Como não há comandos customizados nem fixtures, `supportFile` e `fixturesFolder`
+estão desabilitados nas configurações.
 
 Ao adicionar um teste, reutilize os geradores e a limpeza, mas deixe clara na spec
 a regra que ele verifica. Crie novos helpers quando houver repetição que valha a pena remover.
@@ -257,14 +291,13 @@ Contratos consultados: [Swagger do ServeRest](https://serverest.dev/) e
 
 ## Verificação e entrega
 
-Última execução completa: `npm test`, em 25/09/2026, com Node 24.21.0,
+Última execução completa: `npm test`, em 26/09/2026, com Node 24.21.0,
 Cypress 16.1.0 e Chrome 153 headless: **7 E2E + 20 API aprovados, 0 falhas e 0 pendentes**.
-O comando terminou com código 0, incluindo a limpeza dos dados. Esse resultado
-registra a execução realizada; não garante que o ambiente público estará sempre disponível.
+O comando terminou com código 0, incluindo a limpeza dos dados. Como o ServeRest
+é um ambiente público, novas execuções podem encontrar mudanças ou indisponibilidade.
+Essa execução também gerou seis relatórios HTML e seis XML, um de cada por spec.
 
-O ZIP deve incluir o código dos testes, as configurações, `package.json`,
-`package-lock.json` e este README. Deixe de fora `node_modules`, `.git`, logs,
-screenshots, vídeos, downloads e arquivos locais de segredos. Ao compactar manualmente,
-faça essa seleção: o `.gitignore` não exclui arquivos do ZIP.
-
-O repositório ainda não foi publicado e o ZIP ainda não foi gerado.
+O ZIP da entrega contém os arquivos versionados: testes, helpers, Page Objects,
+configurações, `package.json`, `package-lock.json` e este README. Dependências,
+logs e resultados de execução ficam de fora. Após extrair, abra o terminal na
+pasta do projeto e rode `npm ci` seguido de `npm test`.

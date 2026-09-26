@@ -3,7 +3,7 @@ export const usuariosAdminPage = {
     cy.get('[data-testid="cadastrar-usuarios"]').click();
   },
   preencher({ nome, email, password, administrador }) {
-    // Sem nome nos dados, deixamos o campo intocado para testar a obrigatoriedade.
+    // Sem nome nos dados, deixa o campo vazio para testar o preenchimento obrigatório.
     if (nome) cy.get('[data-testid="nome"]').type(nome, { parseSpecialCharSequences: false });
     cy.get('[data-testid="email"]').type(email);
     cy.get('[data-testid="password"]').type(password, { log: false, parseSpecialCharSequences: false });

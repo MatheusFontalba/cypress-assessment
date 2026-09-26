@@ -20,6 +20,9 @@
   "type": "commonjs",
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
-    "cypress": "^16.1.0"
+    "cypress": "^16.1.0",
+    "cypress-multi-reporters": "^2.0.5",
+    "mocha-junit-reporter": "^2.2.1",
+    "mochawesome": "^8.1.1"
   }
 }

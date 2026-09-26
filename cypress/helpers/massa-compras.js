@@ -16,7 +16,7 @@ export function criarMassaCompras() {
   };
 }
 
-// Só o administrador nasce pela API. Comprador e produto serão cadastrados pelas telas.
+// Prepara o administrador pela API. O teste cadastra comprador e produto pela tela.
 export function prepararAdministradorCompras(massa) {
   const api = Cypress.expose('apiUrl');
   return cy.request('POST', `${api}/usuarios`, massa.admin).then((response) => {
